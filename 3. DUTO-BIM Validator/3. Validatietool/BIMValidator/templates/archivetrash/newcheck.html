@@ -1,0 +1,15 @@
+<!-- templates/home.html-->
+{% extends 'base.html' %}
+
+{% block title %}New Check{% endblock %}
+
+{% block content %}
+<h1>DHRD BIMValidator</h1>
+{% if user.is_authenticated %}
+  <p><a href="{% url 'logout' %}">Log Out</a></p>
+  <p>For project {{projectId}}, we now created a new Check, with ID = {{checkId}}.</p>
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}

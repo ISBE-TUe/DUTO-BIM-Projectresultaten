@@ -1,0 +1,220 @@
+<!-- templates/home.html-->
+{% extends 'base.html' %}
+
+{% block title %}DHRD BIMValidator Reports{% endblock %}
+
+{% block header %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>   
+{% endblock %}
+
+{% block menu %}
+<div class="w-full sticky inset-0 hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 border border-gray-400 lg:border-transparent bg-white shadow lg:shadow-none lg:bg-transparent z-20" style="top:5em;" id="menu-content">
+    <ul class="list-reset">
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'projects' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:hover:border-gray-400">
+            <span class="pb-1 md:pb-0 text-sm">Projects</span>          
+          </a>
+       </li>
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'allchecks' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:hover:border-gray-400">
+            <span class="pb-1 md:pb-0 text-sm">Checks</span>            
+          </a>
+       </li>
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'allreports' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:border-red-500 lg:hover:border-red-500">
+            <span class="pb-1 md:pb-0 text-sm text-gray-900 font-bold">Reports</span>
+          </a>
+       </li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">DHRD BIMValidator Reports</h1>
+
+{% if user.is_authenticated %}
+    <br /> 
+    {% if checkId is None %}   
+            {% if reports %}
+                <ul>
+                    {% for report in reports %}
+                    <blockquote class="border-l-4 border-red-500 my-8 pl-8 md:pl-12">
+                        <li>
+                            <div class = "row">
+                                <div class = "col-md-3">
+                                  Report ID# {{ report.id }}
+                                </div>
+                                <div class = "col-md-3">
+                                    Type: {{ report.check1.project.type }}
+                                </div>
+                                <div class = "col-md-3">
+                                    Created at: {{ report.created }}
+                                </div>
+                                <div class = "col-md-3">
+                                    Metadata score {{ report.metadataScore }} out of {{ report.metadataTotal }}
+                                </div>
+                                <div class = "col-md-3">
+                                    Content score {{ report.contentScore }} out of {{ report.contentTotal }}
+                                </div>
+                                <div class = "col-md-3">
+                                  <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'checks' projectId=report.check1.project.id %}">Project ID# {{ report.check1.project.id }}</a>
+                                </div>
+                                <div class = "col-md-3">
+                                  <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=report.check1.id type=report.check1.project.type %}">View</a>
+                                </div>
+                                <div class = "col-md-3">
+                                    <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'deletereport' reportId=report.id %}">Delete</a>
+                                </div>
+                            </div>
+                        </li>
+                    </blockquote>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reports available.</p>
+            {% endif %}
+            <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>   
+    {% else %} 
+        {% if reports is None %} 
+          <p>Error, no report available.</p>
+        {% else %}
+          <div class = "col-md-3">
+            Report ID# {{ reports.0.id }}
+          </div> 
+          <div class = "col-md-3">
+            Type: {{ reports.0.check1.project.type }}
+          </div>
+          <div class = "col-md-3">
+              Created at: {{ reports.0.created }}
+          </div>
+          <div class = "col-md-3">
+              Metadata score {{ reports.0.metadataScore }} out of {{ reports.0.metadataTotal }}
+          </div>
+          <div class = "col-md-3">
+              Content score {{ reports.0.contentScore }} out of {{ reports.0.contentTotal }}
+          </div>
+          <div class = "col-md-3">
+              <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'checks' projectId=reports.0.check1.project.id %}">Project ID# {{ reports.0.check1.project.id }}</a>            
+          </div>
+          <div class = "col-md-3">
+              <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'deletereport' reportId=reports.0.id %}">Delete</a>
+          </div>
+          
+          {% if reports.0.check1.project.type == "IFC-SPF" %} 
+          <br />
+          <br />
+          <div class="col-md-3 w-full">
+              <canvas id="myCanvas" width="600" height="300"></canvas>
+          </div>
+          {% endif %}
+
+          
+          <br />
+          <br />
+          <h1 class="text-2xl text-slate-900 font-extrabold dark:text-slate-200">Metadata check</h2>          
+          {% for result in results %}
+            {% if result.code == "metadata" %}          
+            <blockquote class="border-l-4 border-red-500 my-8 pl-8 md:pl-12">              
+                  {% if result.success == True %}
+                  <div class = "row" style = "background-color: rgba(26, 203, 74, 0.29);">
+                  {% else %}
+                  <div class = "row" style = "background-color: rgba(203, 26, 71, 0.29);">
+                  {% endif %}
+                      <div class = "col-md-3">
+                        Check: {{ result.property }}
+                      </div>
+                      <div class = "col-md-3">
+                        Check: {{ result.description }}
+                      </div>
+                      <div class = "col-md-3">
+                        Value: {{ result.value }}
+                      </div>
+                      <div class = "col-md-3">
+                        Success: {{ result.success }}
+                      </div>
+                      <div class = "col-md-3">
+                        Score: {{ result.gain }} out of {{ result.total }}
+                      </div>
+                  </div>
+            </blockquote>
+            {% endif %}
+          {% endfor %}
+          <br />
+          
+          <h1 class="text-2xl text-slate-900 font-extrabold dark:text-slate-200">File Content check</h2>
+            {% for result in results %}
+            {% if result.code == "content" %}          
+            <blockquote class="border-l-4 border-red-500 my-8 pl-8 md:pl-12">              
+                  {% if result.success == True %}
+                  <div class = "row" style = "background-color: rgba(26, 203, 74, 0.29);">
+                  {% else %}
+                  <div class = "row" style = "background-color: rgba(203, 26, 71, 0.29);">
+                  {% endif %}
+                      <div class = "col-md-3">
+                        Check: {{ result.property }}
+                      </div>
+                      <div class = "col-md-3">
+                        Check: {{ result.description }}
+                      </div>
+                      <div class = "col-md-3">
+                        Value: {{ result.value }}
+                      </div>
+                      <div class = "col-md-3">
+                        Success: {{ result.success }}
+                      </div>
+                      <div class = "col-md-3">
+                        Score: {{ result.gain }} out of {{ result.total }}
+                      </div>
+                  </div>
+            </blockquote>
+            {% endif %}
+          {% endfor %}
+          <br />
+
+
+        {% endif %}
+        <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>       
+    {% endif %}
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
+
+{% block script %}
+<script type="module">
+
+  import {Viewer, WebIFCLoaderPlugin} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
+  //import {Viewer, WebIFCLoaderPlugin} from "../../../static/scripts/xeokit-sdk.es.min.js";
+
+  const viewer = new Viewer({
+      canvasId: "myCanvas",
+      transparent: true
+  });
+
+  viewer.camera.eye = [-3.933, 2.855, 27.018];
+  viewer.camera.look = [4.400, 3.724, 8.899];
+  viewer.camera.up = [-0.018, 0.999, 0.039];
+
+  const ifcLoader = new WebIFCLoaderPlugin(viewer, {
+      wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/"
+  });
+
+  //var modelName = "smallhouse.ifc";
+  //modelName = "../../../uploads/" + modelName;
+  //var modelName = "{{ ifcURL }}";
+  var modelName = "../../../downloadFile\\" + "{{ ifcURL }}"
+
+  const sceneModel = ifcLoader.load({
+      id: "myModel",
+      //src: "../assets/models/ifc/Duplex.ifc",
+      src: modelName,
+      //loadMetadata: true,
+      excludeTypes: ["IfcSpace"],
+      edges: true
+  });
+
+</script>
+{% endblock %} 
+
+

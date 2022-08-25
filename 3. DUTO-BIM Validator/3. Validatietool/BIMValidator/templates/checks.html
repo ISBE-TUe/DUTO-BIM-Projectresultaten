@@ -1,0 +1,156 @@
+<!-- templates/home.html-->
+{% extends 'base.html' %}
+
+{% block title %}DHRD BIMValidator Checks{% endblock %}
+
+{% block menu %}
+<div class="w-full sticky inset-0 hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 border border-gray-400 lg:border-transparent bg-white shadow lg:shadow-none lg:bg-transparent z-20" style="top:5em;" id="menu-content">
+    <ul class="list-reset">
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'projects' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:hover:border-gray-400">
+            <span class="pb-1 md:pb-0 text-sm">Projects</span>          
+          </a>
+       </li>
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'allchecks' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:border-red-500 lg:hover:border-red-500">
+            <span class="pb-1 md:pb-0 text-sm text-gray-900 font-bold">Checks</span>
+          </a>
+       </li>
+       <li class="py-2 md:my-0 hover:bg-red-100 lg:hover:bg-transparent">
+          <a href="{% url 'allreports' %}" class="block pl-4 align-middle text-gray-700 no-underline hover:text-red-500 border-l-4 border-transparent lg:hover:border-gray-400">
+          <span class="pb-1 md:pb-0 text-sm">Reports</span>
+          </a>
+       </li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">DHRD BIMValidator Checks</h1>
+
+{% if user.is_authenticated %}
+    <br />
+    {% if projectId is None %}
+        {% if checks %}
+        <ul>
+            {% for check in checks %}
+            <blockquote class="border-l-4 border-red-500 my-8 pl-8 md:pl-12">
+                <li>
+                    <div class = "row">
+                        <div class = "col-md-3">
+                            Check ID#{{ check.id }}
+                        </div>
+                        <div class = "col-md-3">
+                            Created at: {{ check.created }}
+                        </div>
+                        <div class = "col-md-3">
+                            Project ID#{{ check.project.id }}
+                        </div>
+                        <div class = "col-md-3">
+                            <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'deletecheck' checkId=check.id %}">Delete</a>
+                        </div>
+
+                        {% if check.project.type == "IFC-SPF" or check.project.type == "ICDD" %}
+                        <div class = "col-md-3">
+                            > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='IFC-SPF' %}">IFC Report</a>
+                        </div>
+                        {% else %}                                
+                        <div class = "col-md-3">
+                            > <p class="inline-block text-gray-400 font-bold">IFC Report</p>
+                        </div>
+                        {% endif %}
+                                    
+                        {% if check.project.type == "ILS-SHACL" or check.project.type == "ILS-PDF" or check.project.type == "ILS-XML" or check.project.type == "ILS-JSON" or check.project.type == "ICDD" %}
+                        <div class = "col-md-3">
+                            > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='ILS' %}">ILS Report</a>
+                        </div>
+                        {% else %}                                
+                        <div class = "col-md-3">
+                            > <p class="inline-block text-gray-400 font-bold">ILS Report</p>
+                        </div>
+                        {% endif %}
+                                    
+                        {% if check.project.type == "ICDD" %}
+                        <div class = "col-md-3">
+                            > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='ICDD'  %}">ICDD Report</a>                                    
+                        </div>
+                        {% else %}                                
+                        <div class = "col-md-3">
+                            > <p class="inline-block text-gray-400 font-bold">ICDD Report</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </li>
+            </blockquote>
+            {% endfor %}
+        </ul>
+        {% else %}  
+            <p>No checks available.</p>
+        {% endif %}
+        <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>   
+    {% else %}
+    <p>For project {{ projectId }}, the following checks are available:</p>
+        {% if checks %}
+            <ul>
+                    {% for check in checks %}
+                    <blockquote class="border-l-4 border-red-500 my-8 pl-8 md:pl-12">
+                        <li>
+                            <div class = "row">
+                                <div class = "col-md-3">
+                                    Check ID#{{ check.id }}
+                                </div>                              
+                                <div class = "col-md-3">
+                                    Created at: {{ check.created }}
+                                </div>
+                                <div class = "col-md-3">
+                                    Project ID#{{ check.project.id }}
+                                </div>
+                                <div class = "col-md-3">
+                                    <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'deletecheck' checkId=check.id %}">Delete</a>
+                                </div>
+                                {% if check.project.type == "IFC-SPF" or check.project.type == "ICDD" %}
+                                <div class = "col-md-3">
+                                    > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='IFC-SPF' %}">IFC Report</a>
+                                </div>
+                                {% else %}                                
+                                <div class = "col-md-3">
+                                    > <p class="inline-block text-gray-400 font-bold">IFC Report</p>
+                                </div>
+                                {% endif %}
+                                    
+                                {% if check.project.type == "ILS-SHACL" or check.project.type == "ILS-PDF" or check.project.type == "ILS-XML" or check.project.type == "ILS-JSON" or check.project.type == "ICDD" %}
+                                <div class = "col-md-3">
+                                    > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='ILS' %}">ILS Report</a>
+                                </div>
+                                {% else %}                                
+                                <div class = "col-md-3">
+                                    > <p class="inline-block text-gray-400 font-bold">ILS Report</p>
+                                </div>
+                                {% endif %}
+                                    
+                                {% if check.project.type == "ICDD" %}
+                                <div class = "col-md-3">
+                                    > <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=check.id type='ICDD'  %}">ICDD Report</a>                                    
+                                </div>
+                                {% else %}                                
+                                <div class = "col-md-3">
+                                    > <p class="inline-block text-gray-400 font-bold">ICDD Report</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </li>
+                    </blockquote>
+                    {% endfor %}
+            </ul>
+        {% else %}
+            <p>No checks available in project.</p>
+        {% endif %}
+        <button type="submit"><a href="{% url 'newcheck' projectId=projectId  %}">Create a new check</a></button>
+        <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>
+         
+    {% endif %}
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}

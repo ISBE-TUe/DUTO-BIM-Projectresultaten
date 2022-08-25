@@ -1,8 +1,9 @@
-*/BIMValidator/env
-*/BIMValidator/venv
-*/BIMValidator/tests
-*/BIMValidator/uploads
-*/BIMValidator/db.sqlite3
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/env
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/venv
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/tests
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/uploads
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/db.sqlite3
+3.*DUTO-BIM*Validator/3.*Validatietool/BIMValidator/validator/migrations/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
