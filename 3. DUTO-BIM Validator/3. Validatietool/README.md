@@ -6,7 +6,7 @@ De validatie-tool toetst of de export van een BIM-model uit een informatiesystee
 ## User Requirements
 Een User Requirements Document (URD) werd opgemaakt. Dit document lijst de eisen op die aan de hand van workshops werden opgehaald bij eindgebruikers. Aan de hand daarvan worden eisen ontworpen voor de ‘BIM-validator’ tool die ontwikkeld moet worden.
 
-> [Download URD (PDF)]('../1. User requirements/03. 20211209_URD.pdf')
+> [Download URD (PDF)](../1.%20User requirements/03.%2020211209_URD.pdf)
 
 Uit het URD wordt volgende systeemarchitectuur afgeleid / uitgewerkt:
 ![Systeemarchitectuur](figures/DHRD-01.png)
@@ -14,7 +14,7 @@ Uit het URD wordt volgende systeemarchitectuur afgeleid / uitgewerkt:
 ## Implementatie
 Op basis van het URD wordt een Technische Specificatie uitgewerkt. Dit document werd uitgewerkt in parallel met het software-ontwikkelingstraject.
 
-> [Download Technische Specificatie (PDF)]('../2. Technische specificatie/04. 20220821_techspec v0.2.1.pdf')
+> [Download Technische Specificatie (PDF)](../2.%20Technische%20specificatie/04.%2020220821_techspec%20v0.2.1.pdf)
 
 ## Meer informatie over ontwikkelde software
 Pieter Pauwels, TU Eindhoven  
