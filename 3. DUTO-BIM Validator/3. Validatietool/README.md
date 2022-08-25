@@ -18,7 +18,7 @@ Op basis van het URD wordt een Technische Specificatie uitgewerkt. Dit document 
 
 ## Meer informatie over ontwikkelde software
 Pieter Pauwels, TU Eindhoven  
-Chiel van der Plas, TU Eindhoven
+Chiel van der Plas, TU Eindhoven  
 Jakob Beetz, RWTH Aachen
 
 
