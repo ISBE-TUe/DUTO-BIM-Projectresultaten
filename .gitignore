@@ -1,3 +1,9 @@
+*/BIMValidator/env
+*/BIMValidator/venv
+*/BIMValidator/tests
+*/BIMValidator/uploads
+*/BIMValidator/db.sqlite3
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
