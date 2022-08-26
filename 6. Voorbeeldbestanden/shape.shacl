@@ -1,0 +1,9 @@
+rule:ElementLinkedToMinOneTask
+    a sh:NodeShape ;
+    sh:targetClass bot:Element ;
+    sh:property [
+        sh:path [sh:alternativePath (icddl:linkedDirectedBinary icddl:linkedDirectedBinaryInverse icddl:linkedDirected)];
+        sh:minCount 1 ;
+        sh:class cto:Task ;
+        sh:message "Each building element must be linked to (at least) one task."
+    ]
