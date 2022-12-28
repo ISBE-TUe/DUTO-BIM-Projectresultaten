@@ -6,7 +6,7 @@
     <date>2022-08-18</date>
   </info>
   <specifications>
-    <specification ifcVersion="IFC2X3" name="DUTO BIM specifications for IfcWall">
+    <specification ifcVersion="IFC2X3" name="IfcWallStandardCase entities have isExternal property">
       <applicability>
         <entity>
           <name>
@@ -15,7 +15,26 @@
         </entity>
       </applicability>
       <requirements>
-        <property>
+        <property measure="IfcBoolean">
+          <propertySet>
+            <simpleValue>Pset_WallCommon</simpleValue>
+          </propertySet>
+          <name>
+            <simpleValue>IsExternal</simpleValue>
+          </name>
+        </property>
+      </requirements>
+    </specification>
+    <specification ifcVersion="IFC2X3" name="IfcWallStandardCase entities have isExternal property True">
+      <applicability>
+        <entity>
+          <name>
+            <simpleValue>IfcWallStandardcase</simpleValue>
+          </name>
+        </entity>
+      </applicability>
+      <requirements>
+        <property measure="IfcBoolean">
           <propertySet>
             <simpleValue>Pset_WallCommon</simpleValue>
           </propertySet>
@@ -23,19 +42,7 @@
             <simpleValue>IsExternal</simpleValue>
           </name>
           <value>
-            <xs:restriction base="xs:string">
-              <xs:enumeration value="T" />
-              <xs:enumeration value="F" />
-              <xs:enumeration value="IFCBOOLEAN(.F.)" />
-              <xs:enumeration value="True" />
-              <xs:enumeration value="False" />
-              <xs:enumeration value="true" />
-              <xs:enumeration value="false" />
-            </xs:restriction>
-            <!-- <xs:restriction base="xs:string"> -->
-            <!--   <xs:enumeration value="T" /> -->
-            <!-- </xs:restriction> -->
-            <!-- <simpleValue>.T.</simpleValue> -->
+            <simpleValue>True</simpleValue>
           </value>
         </property>
       </requirements>
