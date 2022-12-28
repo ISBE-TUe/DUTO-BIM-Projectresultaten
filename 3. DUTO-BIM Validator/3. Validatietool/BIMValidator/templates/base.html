@@ -46,17 +46,28 @@
                   <div class="relative pull-right pl-4 pr-4 md:pr-0">
                   </div>
                </div>
-               <ul class="list-reset lg:flex justify-end items-center">
-                  <li class="mr-3 py-2 lg:py-0">
-                     <a class="inline-block py-2 px-4 text-gray-900 font-bold no-underline" href="#">{{user.username}}</a>
-                  </li>
-                  <li class="mr-3 py-2 lg:py-0">
-                     <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'settings' %}">Settings</a>
-                  </li>
-                  <li class="mr-3 py-2 lg:py-0">
-                     <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'logout' %}">Logout</a>
-                  </li>
-               </ul>
+               {% if user.is_authenticated %}
+                  <ul class="list-reset lg:flex justify-end items-center">
+                     <li class="mr-3 py-2 lg:py-0">
+                        <a class="inline-block py-2 px-4 text-gray-900 font-bold no-underline" href="#">{{user.username}}</a>
+                     </li>
+                     <!--<li class="mr-3 py-2 lg:py-0">
+                        <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'settings' %}">Settings</a>
+                     </li>-->
+                     <li class="mr-3 py-2 lg:py-0">
+                        <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'logout' %}">Logout</a>
+                     </li>
+                  </ul>
+               {% else %}
+                  <ul class="list-reset lg:flex justify-end items-center">
+                     <!--<li class="mr-3 py-2 lg:py-0">
+                        <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'settings' %}">Settings</a>
+                     </li>-->
+                     <li class="mr-3 py-2 lg:py-0">
+                        <a class="inline-block text-gray-600 no-underline hover:text-gray-900 hover:underline py-2 px-4" href="{% url 'login' %}">Login</a>
+                     </li>
+                  </ul>
+               {% endif %}
             </div>
          </div>
       </nav>
@@ -107,7 +118,7 @@
                  <div class="px-8">
                     <h3 class="font-bold text-gray-900">About</h3>
                     <p class="py-4 text-gray-600 text-sm">
-                       This software is the demonstrator output for the DHRD project in Amsterdam. Implementation and code is TU Eindhoven property and will be available under a permissive license.
+                        This software is the demonstrator output for the DHRD project in Amsterdam. The source code is <b>TU Eindhoven</b> property and is available under a permissive license at <b><a href="https://github.com/ISBE-TUe/DUTO-BIM-Projectresultaten">https://github.com/ISBE-TUe/DUTO-BIM-Projectresultaten</a></b>. Any input is welcome to the above GitHub project, or at <a href="mailto:p.pauwels@tue.nl">p.pauwelsATtue.nl</a>. Since this is a demonstrator tool, please be aware that this platform does <b>NOT</b> store any data for long period of time. Do <b>NOT</b> upload large and sensitive data or files. This project is not liable for any loss of data.
                     </p>
                  </div>
               </div>

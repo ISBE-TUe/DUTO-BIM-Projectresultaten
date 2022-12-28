@@ -1,7 +1,8 @@
-<!-- templates/registration/login.html -->
 {% extends 'base.html' %}
 
-{% block title %}New Project{% endblock %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register{% endblock %}
 
 {% block menu %}
 <div class="w-full sticky inset-0 hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 border border-gray-400 lg:border-transparent bg-white shadow lg:shadow-none lg:bg-transparent z-20" style="top:5em;" id="menu-content">
@@ -25,22 +26,20 @@
   </div>
 {% endblock %}
 
-{% block content %}
-<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">New Project</h1>
+{% block content %} 
 
-{% if user.is_authenticated %}
-    <br />
-    <p>Please choose which kind of project you would like to create:</p>
-    <br />
-    <ul>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newifcproject' %}">IFC project (SPF)</a></li>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newilsproject' %}">ILS project (PDF, XML)</a></li>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newilscheckproject' %}">Check IFC against ILS project (SPF & XML)</a></li>
-    </ul>
-
-{% else %}
-<br />
-    <p>You are not logged in</p>
-    <a href="{% url 'login' %}">Log In</a>
-{% endif %}
+<!--Register--> 
+<div class="container py-5">
+	<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">Register</h1>
+	<form method="POST">
+      <br/>
+		{% csrf_token %}
+      
+		{{ register_form|crispy }}
+      <br/>
+		<button class="btn btn-primary" type="submit">Register</button>
+	</form>
+   <br/>
+	<p class="text-left">If you already have an account, <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'login' %}">login</a> instead.</p>
+</div>
 {% endblock %}

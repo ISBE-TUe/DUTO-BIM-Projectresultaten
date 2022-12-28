@@ -30,6 +30,9 @@
 
 {% if user.is_authenticated %}
     <br />
+    <button type="submit"><a href="{% url 'newproject' %}">Create a new project</a></button>
+    <br />
+    <br />
     <p>Here are your projects:</p>
         {% if projects %}
             <ul>
@@ -66,8 +69,8 @@
         {% else %}
             <p>No projects available.</p>
         {% endif %}
-        <button type="submit"><a href="{% url 'newproject' %}">Create a new project</a></button>
 {% else %}
+<br />
   <p>You are not logged in</p>
   <a href="{% url 'login' %}">Log In</a>
 {% endif %}

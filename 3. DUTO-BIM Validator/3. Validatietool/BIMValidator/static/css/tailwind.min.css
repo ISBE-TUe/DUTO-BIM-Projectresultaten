@@ -157,8 +157,8 @@ fieldset{
 label{
     cursor: pointer;
     display: inline-block;
-    padding: 3px 6px;
-    text-align: right;
+    padding: 3px 0px;
+    text-align: left;
     width: 200px;
     vertical-align: top;
 }

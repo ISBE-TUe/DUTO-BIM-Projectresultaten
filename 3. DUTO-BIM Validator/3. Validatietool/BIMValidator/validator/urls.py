@@ -37,14 +37,18 @@ schema_url_patterns = [
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-    #path('', include(router.urls)),
     path('', include(schema_url_patterns)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path("register/", views.register_request, name="register"),
+    path("login", views.login_request, name="login"),
+    path("logout", views.logout_request, name= "logout"),
     path('settings/', views.settings, name='settings'),
     path('', views.getProjects, name='projects'),
     path('newproject/', views.createNewProject, name='newproject'),
+    path('newifcproject/', views.createNewIfcProject, name='newifcproject'),  
+    path('newilsproject/', views.createNewIlsProject, name='newilsproject'),   
+    path('newilscheckproject/', views.createNewIlsCheckProject, name='newilscheckproject'),
     path('projects/', views.getProjects, name='projects'),
     path('projects/<int:projectId>/', views.getChecks, name='checks'),
     path('deleteproject/<int:projectId>/', views.deleteProject, name='deleteproject'),

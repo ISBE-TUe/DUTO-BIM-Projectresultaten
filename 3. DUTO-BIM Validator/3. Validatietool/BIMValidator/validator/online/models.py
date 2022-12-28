@@ -69,6 +69,7 @@ class FileTypes(models.TextChoices):
         ILSXML = 'ILS-XML', ('ILS-XML')
         ILSPDF = 'ILS-PDF', ('ILS-PDF')
         IFCSPF = 'IFC-SPF', ('IFC-SPF')
+        ILSCHECK = 'ILS-CHECK', ('ILS-CHECK')
         ICDD = 'ICDD', ('ICDD')
 
 #class Validation(models.Model):
@@ -80,16 +81,22 @@ class User(models.Model):
     name = models.CharField(max_length=100, blank=True, default='')
 
 class File(models.Model):
-    fileName = models.CharField(max_length=100, blank=True, default='')
+    fileName = models.CharField(max_length=100, blank=True, null=True, default='')
     fileContent = models.FileField(upload_to='uploads', default='')
     fileNameStored = models.CharField(max_length=100, blank=True, default='')
+
+class ILSFile(models.Model):
+    ilsfileName = models.CharField(max_length=100, blank=True, null=True, default='')
+    ilsfileContent = models.FileField(upload_to='uploads', default='')
+    ilsfileNameStored = models.CharField(max_length=100, blank=True, default='')
    
 class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100, blank=True, default='')
     type = models.CharField(max_length=10,choices=FileTypes.choices, default='')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    file = models.ForeignKey(File, on_delete=models.CASCADE, default=0)
+    file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
+    ilsfile = models.ForeignKey(ILSFile, on_delete=models.CASCADE, blank=True, null=True)
 
 class Check(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -104,6 +111,7 @@ class Report(models.Model):
     metadataTotal = models.IntegerField(blank=True, default=0, null=True)
     contentScore = models.IntegerField(blank=True, default=0, null=True)
     contentTotal = models.IntegerField(blank=True, default=0, null=True)
+    type = models.CharField(max_length=10,choices=FileTypes.choices, default='')
     
 class Result(models.Model):
     created = models.DateTimeField(auto_now_add=True)

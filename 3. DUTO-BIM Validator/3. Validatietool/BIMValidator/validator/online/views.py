@@ -1,29 +1,33 @@
 import sys
 
 from django.contrib.auth.models import User, Group
-from django.contrib import auth
+from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.http.response import HttpResponse, JsonResponse
+from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout 
+from django.contrib.auth.forms import AuthenticationForm
 from rest_framework import viewsets, permissions
 from rest_framework.parsers import JSONParser
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, redirect
-from .forms import NewProjectForm
-from .models import Project, User, Check, File, Report, Result
+from .forms import NewIlsProjectForm, NewIfcProjectForm, NewIlsCheckProjectForm
+from .forms import NewUserForm
+from .models import Project, User, Check, File, Report, Result, ILSFile
 from .serializers import ProjectSerializer, ReportSerializer, ResultSerializer, CheckSerializer
 from validator.online import models
 import os
 import mimetypes
-from django.http.response import HttpResponse, JsonResponse
-from django.urls import reverse
 from datetime import datetime
-#import win32com.client
 import threading
 from pathlib import Path
 from urllib.request import pathname2url
 import urllib.parse
 import requests
 import ifcopenshell
+#from ifcopenshell import ids
 from rest_framework.decorators import api_view
 from .ifctester import ids, reporter
+from pprint import pprint
 
 
 def settings(request):
@@ -34,29 +38,52 @@ def settings(request):
     current_org = models.current_org
     return render(request, 'settings.html', {'sparql_endpoint_1':sparql_endpoint_1, 'sparql_endpoint_2':sparql_endpoint_2, 'default_namespace':default_namespace, 'org_default_namespace':org_default_namespace, 'current_org':current_org})
 
-
-def getProjects(request):
-    projects = Project.objects.all() #for all the records 
-    context={       
-      'projects': projects,
-    } 
-    return render(request, 'projects.html', context)
+def getProjects(request):    
+    if request.user.is_authenticated:
+        projects = Project.objects.filter(user=request.user.id)
+        context={       
+            'projects': projects,
+        } 
+        return render(request, 'projects.html', context)
+    else:
+        return redirect('login')
 
 def getAllChecks(request):
-    checks = Check.objects.all() #for all the records 
-    context={
-        'checks': checks,
-    } 
-    return render(request, 'checks.html', context)
+    if request.user.is_authenticated:
+        allChecks = Check.objects.all()
+        projects = Project.objects.filter(user=request.user.id)
+        checks = []
+        for check in allChecks:
+            for project in projects :
+                if check.project == project :
+                    checks.append(check)
+        context={
+            'checks': checks,
+        } 
+        return render(request, 'checks.html', context)
+    else:
+        return redirect('login')
 
 def getAllReports(request):
-    reports = Report.objects.all() #for all the records 
-    context={       
-      'reports': reports,
-    } 
-    return render(request, 'reports.html', context)
+    if request.user.is_authenticated:
+        allReports = Report.objects.all()
+        projects = Project.objects.filter(user=request.user.id)
+        reports = []
+        for report in allReports:
+            for project in projects :
+                if report.check1.project == project :
+                    reports.append(report)
+        context={       
+            'reports': reports,
+        } 
+        return render(request, 'reports.html', context)
+    else:
+        return redirect('login')
 
 def downloadFile(request, filename):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     if filename != '':
         # Define Django project base directory
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -76,15 +103,23 @@ def downloadFile(request, filename):
         # Load the template
         return render(request, 'projects.html')
 
-def createNewProject(request):
+def createNewProject(request):    
+    if request.user.is_authenticated == False:
+        return redirect('login')
+    return render(request, 'newproject.html')
+
+def createNewIfcProject(request):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        form = NewProjectForm(request.POST, request.FILES)
+        form = NewIfcProjectForm(request.POST, request.FILES)
         # check whether it's valid:
         if form.is_valid():
             # process the data in form.cleaned_data as required
-            users = models.User.objects.all() #for all the records 
+            users = models.User.objects.all()
             userAvailable = False
             theUser = models.User
             for user in users:
@@ -96,6 +131,7 @@ def createNewProject(request):
             if not userAvailable :
                 user = models.User()
                 user.name = request.user.username
+                user.id = request.user.id
                 theUser = user
                 user.save()
 
@@ -115,25 +151,148 @@ def createNewProject(request):
             project.file = file
             project.save()
 
-            if project.type == "IFC-SPF":
-                #print(file.fileNameStored)
-                t = threading.Thread(target=transformIFCtoLBD, args=[file.fileNameStored])
-                t.setDaemon(True)
-                t.start()
+#            if project.type == "IFC-SPF":
+#                # transform file to XKT
+#                t = threading.Thread(target=transformIFCtoXKT, args=[file.fileNameStored])
+#                t.setDaemon(True)
+#                t.start()
+#
+#            if project.type == "IFC-SPF":
+#                # transform file to LBD RDF Graph
+#                t = threading.Thread(target=transformIFCtoLBD, args=[file.fileNameStored])
+#                t.setDaemon(True)
+#                t.start()
 
-            projects = Project.objects.all() #for all the records 
-            context={       
-                'projects': projects,
-            } 
-            # redirect to a new URL:
-            #HttpResponseRedirect('/projects/')
-            return render(request, 'projects.html', context)
+            return redirect('projects')
 
     # if a GET (or any other method) we'll create a blank form
     else:
-        form = NewProjectForm()
+        form = NewIfcProjectForm()
 
-    return render(request, 'newproject.html', {'form': form})
+    return render(request, 'newifcproject.html', {'form': form})
+
+def createNewIlsProject(request):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = NewIlsProjectForm(request.POST, request.FILES)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            users = models.User.objects.all()
+            userAvailable = False
+            theUser = models.User
+            for user in users:
+                if user.name == request.user.username:
+                    userAvailable = True
+                    theUser = user
+                    break
+
+            if not userAvailable :
+                user = models.User()
+                user.name = request.user.username
+                user.id = request.user.id
+                theUser = user
+                user.save()
+
+            file = File()
+            file.fileName = form.cleaned_data['file']
+            file.fileContent = request.FILES['file']
+            file.save()
+            # cutting away the uploads file location from the string
+            name = file.fileContent.name.split("/", 1)
+            file.fileNameStored = name[1]
+            file.save()
+
+            project = Project()
+            project.title = form.cleaned_data['title']
+            project.user = theUser
+            project.type = form.cleaned_data['type']  
+            project.file = file
+            project.save()
+            
+            return redirect('projects')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = NewIlsProjectForm()
+
+    return render(request, 'newilsproject.html', {'form': form})
+
+def createNewIlsCheckProject(request):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = NewIlsCheckProjectForm(request.POST, request.FILES)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            users = models.User.objects.all()
+            userAvailable = False
+            theUser = models.User
+            for user in users:
+                if user.name == request.user.username:
+                    userAvailable = True
+                    theUser = user
+                    break
+
+            if not userAvailable :
+                user = models.User()
+                user.name = request.user.username
+                user.id = request.user.id
+                theUser = user
+                user.save()
+
+            ifcfile = File()
+            ifcfile.fileName = form.cleaned_data['ifcfile']
+            ifcfile.fileContent = request.FILES['ifcfile']
+            ifcfile.save()
+            # cutting away the uploads file location from the string
+            ifcname = ifcfile.fileContent.name.split("/", 1)
+            print(ifcname)
+            ifcfile.fileNameStored = ifcname[1]
+            ifcfile.save()
+
+            ilsfile = ILSFile()
+            ilsfile.ilsfileName = form.cleaned_data['ilsfile']
+            ilsfile.ilsfileContent = request.FILES['ilsfile']
+            ilsfile.save()
+            # cutting away the uploads file location from the string
+            ilsname = ilsfile.ilsfileContent.name.split("/", 1)
+            print(ilsname)
+            ilsfile.ilsfileNameStored = ilsname[1]
+            ilsfile.save()
+
+            project = Project()
+            project.title = form.cleaned_data['title']
+            project.user = theUser
+            project.type = form.cleaned_data['type']  
+            project.file = ifcfile
+            project.ilsfile = ilsfile
+            project.save()
+            
+            return redirect('projects')
+
+    # if a GET (or any other method) we'll create a blank form
+    else:
+        form = NewIlsCheckProjectForm()
+
+    return render(request, 'newilscheckproject.html', {'form': form})
+
+#def transformIFCtoXKT(filename):
+#    try:     
+#        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#        fileIFC = BASE_DIR + '/../uploads/' + fileName
+#       
+#    except Exception as e:
+#        print(e)
+#    return
 
 def transformIFCtoLBD(fileName):
     try:        
@@ -172,6 +331,9 @@ def transformIFCtoLBD(fileName):
     return
 
 def deleteProject(request, projectId):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     projects = Project.objects.all() 
     project = projects.get(id=projectId)
     project.delete()
@@ -183,6 +345,9 @@ def deleteProject(request, projectId):
     return render(request, 'projects.html', context)
 
 def getChecks(request, projectId):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     neededchecks = getTheChecks(projectId)
     context={       
         'projectId': projectId,
@@ -191,6 +356,9 @@ def getChecks(request, projectId):
     return render(request, 'checks.html', context)
 
 def createNewCheck(request, projectId):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     check = Check()
     projects = Project.objects.all() #for all the records 
     check.project = projects.get(id=projectId)
@@ -207,6 +375,9 @@ def createNewCheck(request, projectId):
     return render(request, 'checks.html', context)
 
 def deleteCheck(request, checkId):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     checks = Check.objects.all() 
     check = checks.get(id=checkId)
     projectId = check.project.id
@@ -222,25 +393,20 @@ def deleteCheck(request, checkId):
     return render(request, 'checks.html', context)
 
 def deleteReport(request, reportId):
+    if request.user.is_authenticated == False:
+        return redirect('login')
+
     reports = Report.objects.all() 
     report = reports.get(id=reportId)
-    checkId = report.check1.id
-    type = report.check1.project.type
     report.delete()
 
-    neededreports = getTheReports(checkId,type)
-    if(len(neededreports) == 1):
-        neededResults = getTheResults(neededreports[0].id)
-            
-    context={       
-        'checkId': checkId,
-        'reports': neededreports,
-        'results': neededResults
-    } 
+    return redirect('allchecks')
 
-    return render(request, 'reports.html', context)
+def getReports(request, checkId, type):  
+    print('report type: ' + str(type))  
+    if request.user.is_authenticated == False:
+        return redirect('login')
 
-def getReports(request, checkId, type):    
     neededReports = getTheReports(checkId, type)
     if len(neededReports) == 1:
         neededResults = getTheResults(neededReports[0].id)
@@ -252,6 +418,42 @@ def getReports(request, checkId, type):
     }
     return render(request, 'reports.html', context)
 
+### login functionality
+def register_request(request):
+	if request.method == "POST":
+		form = NewUserForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			login(request, user)
+			messages.success(request, "Registration successful." )            
+			return redirect('projects')##../projects/
+		messages.error(request, "Unsuccessful registration. Invalid information.")
+	form = NewUserForm()
+	return render (request=request, template_name="registration/register.html", context={"register_form":form})
+
+def login_request(request):
+	if request.method == "POST":
+		form = AuthenticationForm(request, data=request.POST)
+		if form.is_valid():
+			username = form.cleaned_data.get('username')
+			password = form.cleaned_data.get('password')
+			user = authenticate(username=username, password=password)
+			if user is not None:
+				login(request, user)
+				messages.info(request, f"You are now logged in as {username}.")
+				return redirect('projects')
+			else:
+				messages.error(request,"Invalid username or password.")
+		else:
+			messages.error(request,"Invalid username or password.")
+	form = AuthenticationForm()
+	return render(request=request, template_name="registration/login.html", context={"login_form":form})
+
+def logout_request(request):
+	logout(request)
+	messages.info(request, "You have successfully logged out.") 
+	return redirect('/')
+
 # Helper functions
 def getTheChecks(projectId):
     checks = Check.objects.all()
@@ -262,12 +464,13 @@ def getTheChecks(projectId):
     return neededchecks
 
 def getTheReports(checkId, type):
+    print('getReports type'+ str(type))
     reports = Report.objects.all()
     neededReports = []
     for report in reports:
         if report.check1 is not None:
             if report.check1.id == checkId:
-                if report.check1.project.type.startswith(type):
+                if report.type.startswith(type):
                     neededReports.append(report)
     if len(neededReports) == 0:
         newReport = createNewReport(checkId, type)
@@ -285,6 +488,7 @@ def getTheResults(reportId):
 def createNewReport(checkId, type):
     r = Report()
     r.check1 = Check.objects.get(pk=checkId)
+    r.type = type
     r.created = datetime.now()
     r.save()
 
@@ -296,15 +500,23 @@ def createNewReport(checkId, type):
         # in the user interface, all ILS reports are grouped under one link. So over here we need to figure out what kind of actual ILS was uploaded and to a corresponding check.
         print("ILS check")
         if(r.check1.project.type == 'ILS-PDF'):
+            r.type = 'ILS-PDF'
             doTheILSPDFCheck(r)
         elif(r.check1.project.type == 'ILS-SHACL'):
+            r.type = 'ILS-SHACL'
             doTheILSSHACLCheck(r)
         elif(r.check1.project.type == 'ILS-XML'):
+            r.type = 'ILS-XML'
             doTheILSXMLCheck(r)
         elif(r.check1.project.type == 'ILS-JSON'):
+            r.type = 'ILS-JSON'
             doTheILSJSONCheck(r)
+        elif(r.check1.project.type == 'ILS-CHECK'):
+            r.type = 'ILS-XML'
+            doTheILSXMLCheck(r)
         elif(r.check1.project.type == 'ICDD'):
-            print('TODO: ILS check as part of ICDD')
+            r.type = 'ILS-XML'
+            doTheILSXMLCheck(r)
         else:
             print("oh no, we missed this project type: " + r.check1.project.type)        
     elif (type == 'ILS-PDF'):
@@ -319,6 +531,9 @@ def createNewReport(checkId, type):
     elif (type == 'ILS-XML'):
         print("ILS-XML check")
         doTheILSXMLCheck(r)
+    elif (type == 'ILS-CHECK'):
+        print("ICDD check")
+        doTheICDDCheck(r)
     elif (type == 'ICDD'):
         print("ICDD check")
         doTheICDDCheck(r)
@@ -355,6 +570,7 @@ def doTheILSXMLCheck(report):
     
 def doTheICDDCheck(report):
     checkFileType(report)
+    checkIFCFileMetadata(report)
     checkIDS(report)
     calculateTotalScores(report)
     return
@@ -555,14 +771,15 @@ def checkFileType(report):
 
 def checkIDS(report):
     #print(models.default_ids)
-    checks = ids.open(models.default_ids)
+    #checks = ids.open(models.default_ids)
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ifc_model = ifcopenshell.open(  BASE_DIR + '/../uploads/' + report.check1.project.file.fileNameStored)
-    checks.validate(ifc_model)
-    ids_report = reporter.Json(checks)
+    ilsfile = ids.open(BASE_DIR + '/../uploads/' + report.check1.project.ilsfile.ilsfileNameStored)
+    ilsfile.validate(ifc_model)
+    #res = ids.report
+    ids_report = reporter.Json(ilsfile)
     res = ids_report.report()
-    from pprint import pprint
-    #pprint(res)
+    
     for s in res['specifications']:
         for x in s['requirements']:
             pprint(x)
@@ -595,25 +812,6 @@ def addNewResult(report, title, description, code, property, value, success, gai
     res.total = total
     res.save()
     return
-
-def get_file_metadata(path, filename, metadata):
-
-    # Path shouldn't end with backslash, i.e. "E:\Images\Paris"
-    # filename must include extension, i.e. "PID manual.pdf"
-    # Returns dictionary containing all file metadata.
-    if sys.platform == 'win32':
-        sh = win32com.client.gencache.EnsureDispatch('Shell.Application', 0)
-        ns = sh.NameSpace(path)
-
-    # Enumeration is necessary because ns.GetDetailsOf only accepts an integer as 2nd argument
-    file_metadata = dict()
-    item = ns.ParseName(str(filename))
-    for ind, attribute in enumerate(metadata):
-        attr_value = ns.GetDetailsOf(item, ind)
-        if attr_value:
-            file_metadata[attribute] = attr_value
-
-    return file_metadata
 
 
 #####################################

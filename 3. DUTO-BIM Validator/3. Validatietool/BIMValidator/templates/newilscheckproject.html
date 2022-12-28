@@ -1,7 +1,7 @@
 <!-- templates/registration/login.html -->
 {% extends 'base.html' %}
 
-{% block title %}New Project{% endblock %}
+{% block title %}New ILS Check Project{% endblock %}
 
 {% block menu %}
 <div class="w-full sticky inset-0 hidden h-64 lg:h-auto overflow-x-hidden overflow-y-auto lg:overflow-y-hidden lg:block mt-0 border border-gray-400 lg:border-transparent bg-white shadow lg:shadow-none lg:bg-transparent z-20" style="top:5em;" id="menu-content">
@@ -26,21 +26,14 @@
 {% endblock %}
 
 {% block content %}
-<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">New Project</h1>
-
-{% if user.is_authenticated %}
+<h1 class="text-3xl text-slate-900 font-extrabold dark:text-slate-200">New ILS Check Project</h1>
     <br />
-    <p>Please choose which kind of project you would like to create:</p>
-    <br />
-    <ul>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newifcproject' %}">IFC project (SPF)</a></li>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newilsproject' %}">ILS project (PDF, XML)</a></li>
-      <li><a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'newilscheckproject' %}">Check IFC against ILS project (SPF & XML)</a></li>
-    </ul>
-
-{% else %}
-<br />
-    <p>You are not logged in</p>
-    <a href="{% url 'login' %}">Log In</a>
-{% endif %}
+    <p>Since this is a demonstrator tool, please be aware that this platform does <b>NOT</b> store any data for long period of time. Do <b>NOT</b> upload large and sensitive data or files.</p>
+    <form enctype=multipart/form-data action="/newilscheckproject/" method="post">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <input type="submit" value="Submit">
+</form>
 {% endblock %}

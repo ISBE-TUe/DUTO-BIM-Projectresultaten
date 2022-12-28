@@ -34,7 +34,9 @@
 
 {% if user.is_authenticated %}
     <br /> 
-    {% if checkId is None %}   
+    {% if checkId is None %} 
+            <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>   
+            <br /><br />
             {% if reports %}
                 <ul>
                     {% for report in reports %}
@@ -60,6 +62,9 @@
                                   <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'checks' projectId=report.check1.project.id %}">Project ID# {{ report.check1.project.id }}</a>
                                 </div>
                                 <div class = "col-md-3">
+                                    File: <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'downloadFile' filename=report.check1.project.file.fileNameStored %}" download>{{ report.check1.project.file.fileName }}</a>
+                                </div>
+                                <div class = "col-md-3">
                                   <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'reports' checkId=report.check1.id type=report.check1.project.type %}">View</a>
                                 </div>
                                 <div class = "col-md-3">
@@ -73,8 +78,10 @@
             {% else %}
                 <p>No reports available.</p>
             {% endif %}
-            <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>   
-    {% else %} 
+              
+    {% else %}         
+        <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>  
+        <br /><br /> 
         {% if reports is None %} 
           <p>Error, no report available.</p>
         {% else %}
@@ -82,7 +89,7 @@
             Report ID# {{ reports.0.id }}
           </div> 
           <div class = "col-md-3">
-            Type: {{ reports.0.check1.project.type }}
+            Type: {{ reports.0.type }}
           </div>
           <div class = "col-md-3">
               Created at: {{ reports.0.created }}
@@ -97,17 +104,11 @@
               <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'checks' projectId=reports.0.check1.project.id %}">Project ID# {{ reports.0.check1.project.id }}</a>            
           </div>
           <div class = "col-md-3">
+              File: <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'downloadFile' filename=reports.0.check1.project.file.fileNameStored %}" download>{{ reports.0.check1.project.file.fileName }}</a>
+          </div>
+          <div class = "col-md-3">
               <a class="inline-block text-gray-900 font-bold hover:text-red-500 underline" href="{% url 'deletereport' reportId=reports.0.id %}">Delete</a>
           </div>
-          
-          {% if reports.0.check1.project.type == "IFC-SPF" %} 
-          <br />
-          <br />
-          <div class="col-md-3 w-full">
-              <canvas id="myCanvas" width="600" height="300"></canvas>
-          </div>
-          {% endif %}
-
           
           <br />
           <br />
@@ -169,11 +170,7 @@
             </blockquote>
             {% endif %}
           {% endfor %}
-          <br />
-
-
-        {% endif %}
-        <button type="submit"><a href="{% url 'projects' %}">Go to Projects</a></button>       
+        {% endif %}  
     {% endif %}
 {% else %}
   <p>You are not logged in</p>
@@ -181,40 +178,6 @@
 {% endif %}
 {% endblock %}
 
-{% block script %}
-<script type="module">
 
-  import {Viewer, WebIFCLoaderPlugin} from "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/xeokit-sdk.es.min.js";
-  //import {Viewer, WebIFCLoaderPlugin} from "../../../static/scripts/xeokit-sdk.es.min.js";
-
-  const viewer = new Viewer({
-      canvasId: "myCanvas",
-      transparent: true
-  });
-
-  viewer.camera.eye = [-3.933, 2.855, 27.018];
-  viewer.camera.look = [4.400, 3.724, 8.899];
-  viewer.camera.up = [-0.018, 0.999, 0.039];
-
-  const ifcLoader = new WebIFCLoaderPlugin(viewer, {
-      wasmPath: "https://cdn.jsdelivr.net/npm/@xeokit/xeokit-sdk/dist/"
-  });
-
-  //var modelName = "smallhouse.ifc";
-  //modelName = "../../../uploads/" + modelName;
-  //var modelName = "{{ ifcURL }}";
-  var modelName = "../../../downloadFile\\" + "{{ ifcURL }}"
-
-  const sceneModel = ifcLoader.load({
-      id: "myModel",
-      //src: "../assets/models/ifc/Duplex.ifc",
-      src: modelName,
-      //loadMetadata: true,
-      excludeTypes: ["IfcSpace"],
-      edges: true
-  });
-
-</script>
-{% endblock %} 
 
 
