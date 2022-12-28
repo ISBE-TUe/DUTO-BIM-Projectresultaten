@@ -12,3 +12,5 @@ Deze repository verzamelt de projectresultaten voor het DUTO-BIM project. Meer i
 5. [Vragenlijst gebruik DUTO-instrumenten](5.%20Vragenlijst%20gebruik%20DUTO-instrumenten/07.%20Vragenlijst%20-%20Feedback%20DUTO%20BIM%20projectresultaten.pdf)
 
 Een demo-versie van de ontwikkelde validatietool is beschikbaar online: https://www.bimvalidator.nl/. 
+
+Voor suggesties, toevoegingen, projectverlengingen, en andere: laat graag een Issue achter op de GitHub repository, of neem contact op met r.bergs<AT>amsterdam.nl of p.pauwels<AT>tue.nl.
