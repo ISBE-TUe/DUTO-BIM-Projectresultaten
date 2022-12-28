@@ -13,4 +13,4 @@ Deze repository verzamelt de projectresultaten voor het DUTO-BIM project. Meer i
 
 Een demo-versie van de ontwikkelde validatietool is beschikbaar online: https://www.bimvalidator.nl/. 
 
-Voor suggesties, toevoegingen, projectverlengingen, en andere: laat graag een Issue achter op de GitHub repository, of neem contact op met r.bergs<AT>amsterdam.nl of p.pauwels<AT>tue.nl.
+Voor suggesties, toevoegingen, projectverlengingen, en andere: laat graag een Issue achter op de GitHub repository, of neem contact op met r.bergs AT amsterdam.nl of p.pauwels AT tue.nl.
