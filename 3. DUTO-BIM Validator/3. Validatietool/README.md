@@ -16,6 +16,10 @@ Op basis van het URD wordt een Technische Specificatie uitgewerkt. Dit document 
 
 > [Download Technische Specificatie (PDF)](../2.%20Technische%20specificatie/04.%2020220821_techspec%20v0.2.1.pdf)
 
+De validatie-tool maakt gebruik van de open-source IFC tester functionaliteit die beschikbaar is op https://github.com/IfcOpenShell/IfcOpenShell/tree/v0.7.0/src/ifctester. 
+
+De resulterende software is beschikbaar op https://bimvalidator.nl/. Let op, dit is een demostratietool. Opgeladen data gaat verloren / wordt niet op lange termijn begehouden.
+
 ## Meer informatie over ontwikkelde software
 Pieter Pauwels, TU Eindhoven  
 Chiel van der Plas, TU Eindhoven  
