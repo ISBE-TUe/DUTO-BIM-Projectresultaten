@@ -11,6 +11,4 @@ Deze repository verzamelt de projectresultaten voor het DUTO-BIM project. Meer i
 4. [PSA Duurzame toegankelijkheid](4.%20PSA%20Duurzame%20toegankelijkheid/06.%20PSA%20Duurzame%20toegankelijkheid%20van%20Ruimtelijke%20Data%20-%20v06.1.pdf)
 5. [Vragenlijst gebruik DUTO-instrumenten](5.%20Vragenlijst%20gebruik%20DUTO-instrumenten/07.%20Vragenlijst%20-%20Feedback%20DUTO%20BIM%20projectresultaten.pdf)
 
-Een demo-versie van de ontwikkelde validatietool is beschikbaar online: https://www.bimvalidator.nl/. 
-
 Voor suggesties, toevoegingen, projectverlengingen, en andere: laat graag een Issue achter op de GitHub repository, of neem contact op met r.bergs AT amsterdam.nl of p.pauwels AT tue.nl.
